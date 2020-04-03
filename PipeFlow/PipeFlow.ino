@@ -59,16 +59,6 @@ struct PipeFlow {
 	*/
 	template<CalcMethod meth>
 	decimal PressureDifference(decimal _velocity, decimal _frictionFactor = 0.0) {
-		decimal Re{ ReynoldsNumber(_velocity) };
-		if (Re <= ReKrit) {
-			//Calculations
-			decimal f{ this->FrictionFactor< this->preferredCalcMethods.FrictionFactorLaminar> (Re) };
-			return this->PressureDifference<this->preferredCalcMethods.PressureDifferenceLaminar>(_velocity, f);
-		}
-		if (Re > ReKrit) {
-			decimal f{ this->FrictionFactor< this->preferredCalcMethods.FrictionFactorTurbulent>(Re) };
-			return this->PressureDifference<this->preferredCalcMethods.PressureDifferenceTurbulent>(_velocity, f);
-		}
 		return 0.0;
 	}
 
@@ -82,33 +72,6 @@ struct PipeFlow {
 	*/
 	template<CalcMethod meth>
 	decimal MeanVelocity(decimal _deltaP) {
-		if (_deltaP <= 0.0) {
-			return 0.0;
-		}
-		decimal threshold{ 0.25 };//Is this a good value?
-		//Now there comes an ungly code-doubling
-		{
-			//Try with laminar flow Regime
-			decimal velocity{ this->MeanVelocity<this->preferredCalcMethods.MeanVelocityLaminar>(_deltaP) };
-			decimal Re{ ReynoldsNumber(velocity) };
-			decimal frictionFactor{ this->FrictionFactor< this->preferredCalcMethods.FrictionFactorLaminar>(Re) };
-			decimal deltaPTest{ this->PressureDifference<this->preferredCalcMethods.PressureDifferenceLaminar>(velocity, frictionFactor) };
-			//Is the calculated Delta p near the given _deltaP? Then it is probably laminar
-			if (abs(1.0 - deltaPTest / _deltaP) < threshold) {
-				return velocity;
-			}
-		}
-		{
-			//Try with turbulent flow Regime
-			decimal velocity{ this->MeanVelocity<this->preferredCalcMethods.MeanVelocityTurbulent>(_deltaP) };
-			decimal Re{ ReynoldsNumber(velocity) };
-			decimal frictionFactor{ this->FrictionFactor< this->preferredCalcMethods.FrictionFactorTurbulent>(Re) };
-			decimal deltaPTest{ this->PressureDifference<this->preferredCalcMethods.PressureDifferenceTurbulent>(velocity, frictionFactor) };
-			//Is the calculated Delta p near the given _deltaP? Then it is probably turbulent
-			if (abs(1.0 - deltaPTest / _deltaP) < threshold) {
-				return velocity;
-			}
-		}
 		return 0.0;
 	}
 
