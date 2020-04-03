@@ -86,7 +86,7 @@ struct PipeFlow {
 			return 0.0;
 		}
 		decimal threshold{ 0.25 };//Is this a good value?
-		//Now there comes an ungly code-doubling
+		//Now there comes an ugly code-almost-doubling
 		{
 			//Try with laminar flow Regime
 			decimal velocity{ this->MeanVelocity<this->preferredCalcMethods.MeanVelocityLaminar>(_deltaP) };
