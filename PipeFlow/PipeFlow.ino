@@ -196,7 +196,7 @@ namespace PipeFlowCalculation {
 		MeanVelocity = _pipeFlow->preferredCalcMethods.MeanVelocityLaminar;
 		velocity = MeanVelocity(_deltaP);
 		Re = _pipeFlow->ReynoldsNumber(velocity);
-		if (Re > ReKrit) {
+		if (Re <= ReKrit) {
 			return velocity;
 		}
 		return 0.0;
@@ -355,8 +355,7 @@ void setup() {
 			Serial.println(" ");
 
 			decimal deltaP = 19.9993;
-			decimal w = PipeFlowCalculation::MeanVelocity<CalcMethod::Colebrook>(&pipeFlow, deltaP);
-			decimal w1 = PipeFlowCalculation::MeanVelocity<CalcMethod::Any>(&pipeFlow, deltaP);
+			decimal w = PipeFlowCalculation::MeanVelocity<CalcMethod::Any>(&pipeFlow, deltaP);
 			decimal Re = pipeFlow.ReynoldsNumber(w);
 			decimal vFlow = area * w;
 			decimal f = deltaP / (length * density * w * w / 2 / diameter);
@@ -367,8 +366,6 @@ void setup() {
 			Serial.println(Re, 4);
 			Serial.print("Calculated Mean Velocity (m/s): ");
 			Serial.println(w, 4);
-			Serial.print("Calculated Mean Velocity1 (m/s): ");
-			Serial.println(w1, 4);
 			Serial.print("Volume Flow (l/min) from Mean Velocity: ");
 			Serial.println(6e4 * vFlow, 4);
 			Serial.print("Calculated Friction factor (.): ");
@@ -456,4 +453,26 @@ void loop() {
 
 //Sample output
 
+//Example with dry air.
+//Densityand dynamic viscosity are from
+//VDI Heat Atlas, 2nd Edition.
 //
+//(1) Mean velocity and volume flow are calculated from pressure difference.
+//
+//Given Pressure Difference(Pa) : 19.9993
+//Calculated Reynolds Number(.) : 8670.7337
+//Calculated Mean Velocity(m / s) : 14.9384
+//Volume Flow(l / min) from Mean Velocity : 70.3955
+//Calculated Friction factor(.) : 0.0322
+//
+//(2) The pressure difference is calculated from mean velocity from(1).
+//
+//Mean Velocity(m / s) as calculated(1) : 14.9384
+//Calculated Reynolds Number(.) : 8670.7337
+//
+//Turbulent flow regime :
+//
+//Calculated Colebrook friction factor(.) : 0.0322
+//Calculated Churchill friction factor(.) : 0.0324
+//Calculated Delta p with Colebrook friction factor(Pa) : 19.9993
+//Calculated Delta p with Churchill friction factor(Pa) : 20.1202
